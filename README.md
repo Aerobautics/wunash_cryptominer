@@ -28,7 +28,7 @@ The SHA-256 algorithm is as follows:
 0x1f83d9ab
 0x5be0cd19
 ```
-1. An array is then initialized with the first 32 bits of the fractional parts of the cube roots of the first 64 primes (2 to 311):
+2. An array is then initialized with the first 32 bits of the fractional parts of the cube roots of the first 64 primes (2 to 311):
 ```
 0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -40,19 +40,19 @@ The SHA-256 algorithm is as follows:
 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 ```
    1. The bit 1 is appended to the message of length L
-1. K bits 0 are appended wher K is the smallest non-negative integer s.t. L + K + 1 + 64 = n * 512 for some positive integer n
-1. Append the length L as a 64 bit big-endian integer to make the total length n * 512
-1. Break the message into 512 bit chunks
-1. For each chunk
-	1. Create a 64 entry message schedule array of 32 bit words (with don't care initial entries)
-	1. Copy the chunck into the first 16 words of the message schedule array
-	1. Extend the first 16 words into the remaining 48 words of the message schedule array
-	1. Initialize the working variable to the current hash value
-	1. Compress the chunks
-	1. Add the compressed chunks to the current hash value
-1. The final hash is produced by concatenating the 8 hash values
+3. K bits 0 are appended wher K is the smallest non-negative integer s.t. L + K + 1 + 64 = n * 512 for some positive integer n
+3. Append the length L as a 64 bit big-endian integer to make the total length n * 512
+3. Break the message into 512 bit chunks
+3. For each chunk
+	3. Create a 64 entry message schedule array of 32 bit words (with don't care initial entries)
+	3. Copy the chunck into the first 16 words of the message schedule array
+	3. Extend the first 16 words into the remaining 48 words of the message schedule array
+	3. Initialize the working variable to the current hash value
+	3. Compress the chunks
+	3. Add the compressed chunks to the current hash value
+3. The final hash is produced by concatenating the 8 hash values
 	
 ## TODO
-2. Translate the SHA-256 algorithm pseudocode to C++
-2. Implement C++ mining bitcoin miner
-2. Implement C++ pooled mining
+1. Translate the SHA-256 algorithm pseudocode to C++
+1. Implement C++ mining bitcoin miner
+1. Implement C++ pooled mining
