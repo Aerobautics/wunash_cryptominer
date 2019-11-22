@@ -54,5 +54,6 @@ The SHA-256 algorithm is as follows:
 	
 ## TODO
 1. Translate the SHA-256 algorithm pseudocode to C++
+1. Parallelize SHA-256 algorithm
 1. Implement C++ mining bitcoin miner
 1. Implement C++ pooled mining
