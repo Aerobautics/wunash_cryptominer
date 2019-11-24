@@ -3,18 +3,18 @@
 library ieee, lcdf_vhdl;
 use ieee.std_logic_1164.all, lcdf_vdhl.func_prims.all;
 entity decoder_2_to_4_w_enable is
-	port (EN, A0, A1: in std_logic;
-		D0, D1, D2, D3: out std_logic);
+	port	(EN, A0, A1: in std_logic;
+		 D0, D1, D2, D3: out std_logic);
 end decoder_2_to_4_w_enable;
 
 architecture structural_1 of decoder_2_to_4_w_enable is
 	component NOT1
-		port(in1: in std_logic;
-			out1: out std_logic);
+		port	(in1: in std_logic;
+			 out1: out std_logic);
 	end component;
 	component AND2
-		port(in1, in2: in std_logic;
-			out1: out std_logic);
+		port	(in1, in2: in std_logic;
+			 out1: out std_logic);
 	end component;
 	signal A0_n, A1_n, N0, N1, N2, N3: std_logic;
 	begin
