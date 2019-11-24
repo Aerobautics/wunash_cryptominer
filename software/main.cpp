@@ -6,24 +6,50 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <string>
+#include <cstdlib>
 #define HASH_SIZE 32
 #define DEBUG_VERSION
 
-/*
- * (1) All variables are 32 bit unsigned integers and addition is calculated modulo 2 ^32
- * (2) For each round, there is one round constant k[i] and one entry in the message schedule array w[i], 0<=i<=63
- * (3) The complression function uses 8 working variables, a through h
- * (4) Big-endian convention is used when expressing the constants in this pseudocode, and when parsing message block data from bytes to words, for example, the first word of the input message "abc" after padding is 0x61626380, 'a'=0x61
- */
+inline uint32_t right_rotate(uint32_t input, uint32_t n);
+
+void test_function_001();
+void test_sha(std::vector<unsigned char> input, unsigned char output[HASH_SIZE]);
+std::vector<unsigned char> decimateInteger(int input, int array_size);
+void packChunk(std::vector<unsigned char> input, unsigned int output[]);
 
 int main(int argc, char *argv[]) {
-	
-	std::cout << "Hello, World!" << std::endl;
-	
+	test_function_001();
+	test_function_001();
+
+	system("pause");
 	return 0;
 }
 
-void test_sha(std::vector<unsigned char> input, unsigned char[HASH_SIZE] output) {
+/*
+* (1) All variables are 32 bit unsigned integers and addition is calculated modulo 2 ^32
+* (2) For each round, there is one round constant k[i] and one entry in the message schedule array w[i], 0<=i<=63
+* (3) The complression function uses 8 working variables, a through h
+* (4) Big-endian convention is used when expressing the constants in this pseudocode, and when parsing message block data from bytes to words, for example, the first word of the input message "abc" after padding is 0x61626380, 'a'=0x61
+*/
+void test_function_001() {
+	unsigned char test_hash[HASH_SIZE];
+	std::string test_string = "Hello, World!";
+	//dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f
+	std::vector<unsigned char> input;
+	std::string output;
+
+	//test_string.erase(std::find(test_string.begin(), test_string.end(), '\0'), test_string.end());
+	input.insert(input.end(), test_string.begin(), test_string.end());
+	std::cout << test_string << std::endl;
+	test_sha(input, test_hash);
+	for (int i = 0; i < HASH_SIZE; i++) {
+		std::cout << std::hex << static_cast<int>(test_hash[i]);
+	}
+	std::cout << std::endl;
+}
+
+void test_sha(std::vector<unsigned char> input, unsigned char output[HASH_SIZE]) {
 	const int HASH_COUNT = 8;
 	const int ROUND_COUNT = 64;
 	const int BIT_COUNT = 512;
@@ -40,26 +66,26 @@ void test_sha(std::vector<unsigned char> input, unsigned char[HASH_SIZE] output)
 	bool isMatchFound;
 	std::vector<unsigned char> tail;
 	std::vector<unsigned char> temporary;
-	unsigned int workingVariables[HASH_COUNT];
-	unsigned int messageScheduleArray[ROUND_COUNT];
+	uint32_t workingVariables[HASH_COUNT];
+	uint32_t messageScheduleArray[ROUND_COUNT];
 
 	
 	// Initialize hash values with the first 32 bits of
 	// the fractional parts of the square roots of the first 8 primes
-	unsigned int hashValues[HASH_COUNT] = {
-		0x6a09e667,
-		0xbb67ae85,
-		0x3c6ef372,
-		0xa54ff53a,
-		0x510e527f,
-		0x9b05688c,
-		0x1f83d9ab,
-		0x5be0cd19
+	uint32_t hashValues[HASH_COUNT] = {
+		0x6A09E667,
+		0xBB67AE85,
+		0x3C6EF372,
+		0xA54FF53A,
+		0x510E527F,
+		0x9B05688C,
+		0x1F83D9AB,
+		0x5BE0CD19
 	};
 	
 	// Initialize array of round constants with the first 32 bits of
 	// the fractional parts of the cube roots of the first 64 primes
-	unsigned int roundConstants[ROUND_COUNT] = {
+	uint32_t roundConstants[ROUND_COUNT] = {
 		0x428a2f98,
 		0x71374491,
 		0xb5c0fbcf,
@@ -146,7 +172,7 @@ void test_sha(std::vector<unsigned char> input, unsigned char[HASH_SIZE] output)
 	} while(!isMatchFound);
 	totalLength = 1 + appendageLength;
 	#ifdef DEBUG_VERSION
-	assert(!(totalLength % WORD_SIZE) && totalLength >= WORD_SIZE)
+	assert(!(totalLength % WORD_SIZE) && totalLength >= WORD_SIZE);
 	#endif
 	additions = totalLength / WORD_SIZE;
 	for (int i = 0; i < additions; i++) {
@@ -162,7 +188,7 @@ void test_sha(std::vector<unsigned char> input, unsigned char[HASH_SIZE] output)
 	iterations = input.size() / (BIT_COUNT / WORD_SIZE);
 	for (int i = 0; i < iterations; i++) {
 		// Breaking off a 512b chunk . . .
-		temporary = std::vector(input.begin() + i * (BIT_COUNT / WORD_SIZE),
+		temporary = std::vector<unsigned char>(input.begin() + i * (BIT_COUNT / WORD_SIZE),
 			input.begin() + (i + 1) * (BIT_COUNT / WORD_SIZE));
 		// Create a 64-entry message schedule array (MSA) of 32-bit words
 		//unsigned int messageScheduleArray[ROUND_COUNT];
@@ -170,14 +196,14 @@ void test_sha(std::vector<unsigned char> input, unsigned char[HASH_SIZE] output)
 		packChunk(temporary, messageScheduleArray);
 		// Extend the first 16 words into the remaining 48 words of the MSA
 		for (int j = BIT_COUNT / (BYTE_COUNT * WORD_SIZE); j < ROUND_COUNT; j++) {
-			unsigned int seed_0 = (messageScheduleArray[j - 15] >> 7) |
-				(messageScheduleArray[j - 15] >> 18) |
+			uint32_t seed_0 = right_rotate(messageScheduleArray[j - 15], 7) ^
+				right_rotate(messageScheduleArray[j - 15], 18) ^
 				(messageScheduleArray[j - 15] >> 3);
-			unsigned int seed_1 = (workingVariables[j - 2] >> 17) |
-				(messageScheduleArray[j - 2] >> 19) |
+			uint32_t seed_1 = right_rotate(workingVariables[j - 2], 17) ^
+				right_rotate(messageScheduleArray[j - 2], 19) ^
 				(messageScheduleArray[j - 2] >> 10);
-			workingVariable[j] = messageScheduleArray[i - 16] + seed_0 +
-				messageScheduleArray[i - 7] + seed_1;
+			messageScheduleArray[j] = messageScheduleArray[j - 16] + seed_0 +
+				messageScheduleArray[j - 7] + seed_1;
 		}
 		// Initialize working variables to current hash value
 		for (int j = 0; j < HASH_COUNT; j++) {
@@ -188,23 +214,25 @@ void test_sha(std::vector<unsigned char> input, unsigned char[HASH_SIZE] output)
 		// e = 4, f = 5, g = 6, h = 7
 		// Main compression function
 		for (int j = 0; j < ROUND_COUNT; j++) {
-			int seed_0 = 0;
-			int seed_1 = 0;
-			int temporary_1 = 0;
-			int temporary_2 = 0;
+			uint32_t seed_0 = 0;
+			uint32_t seed_1 = 0;
+			uint32_t temporary_1 = 0;
+			uint32_t temporary_2 = 0;
+			uint32_t ch;
+			uint32_t maj;
 
-			seed_1 = (workingVariables[4] >> 6) |
-				(workingVariables[4] >> 11) |
-				(workingVariables[4] >> 25);
-			ch = (workingVariables[4] & workingVariables[5]) |
+			seed_1 = right_rotate(workingVariables[4], 6) ^
+				right_rotate(workingVariables[4], 11) ^
+				right_rotate(workingVariables[4], 25);
+			ch = (workingVariables[4] & workingVariables[5]) ^
 				((~workingVariables[4]) & workingVariables[6]);
 			temporary_1 = workingVariables[7] + seed_1 + ch +
 				roundConstants[j] + messageScheduleArray[j];
-			seed_0 = (workingVariables[0] >> 2) |
-				(workingVariables[0] >> 13) |
-				(workingVariables[0] >> 22);
-			maj = (workingVariables[0] & workingVariables[1]) |
-				(workingVariables[0] & workingVariables[2]) |
+			seed_0 = right_rotate(workingVariables[0], 2) ^
+				right_rotate(workingVariables[0], 13) ^
+				right_rotate(workingVariables[0], 22);
+			maj = (workingVariables[0] & workingVariables[1]) ^
+				(workingVariables[0] & workingVariables[2]) ^
 				(workingVariables[1] & workingVariables[2]);
 			temporary_2 = seed_0 + maj;
 
@@ -219,20 +247,21 @@ void test_sha(std::vector<unsigned char> input, unsigned char[HASH_SIZE] output)
 		}
 		// Add the compressed chunk to the current hash value
 		for (int j = 0; j < HASH_COUNT; j++) {
-			hashValues[i] = hashValues[i] + workingVariables[i];
+			hashValues[j] = hashValues[j] + workingVariables[j];
 		}
 	}
 	// Produce the final hash value (big-endian)
 	for (int i = 0; i < HASH_COUNT; i++) {
-		temporary = decimateInteger(hashValues[i], WORD_SIZE);
+		temporary = decimateInteger(hashValues[i], BYTE_COUNT);
 		//output.insert(output.end(), temporary.begin(), temporary.end());
-		output[i * HASH_COUNT + 0] = temporary[0];
-		output[i * HASH_COUNT + 1] = temporary[1];
-		output[i * HASH_COUNT + 2] = temporary[2];
-		output[i * HASH_COUNT + 3] = temporary[3];		
+		output[i * BYTE_COUNT + 0] = temporary[0];
+		output[i * BYTE_COUNT + 1] = temporary[1];
+		output[i * BYTE_COUNT + 2] = temporary[2];
+		output[i * BYTE_COUNT + 3] = temporary[3];		
 	}
 }
 
+// Put integer into a character array (vector)
 std::vector<unsigned char> decimateInteger(int input, int array_size) {
 	std::vector<unsigned char> output;
 	const int MAXIMUM_WORD = 0x100;
@@ -243,7 +272,7 @@ std::vector<unsigned char> decimateInteger(int input, int array_size) {
 	}
 	std::reverse(output.begin(), output.end());
 
-	return output
+	return output;
 }
 
 void packChunk(std::vector<unsigned char> input, unsigned int output[]) {
@@ -254,7 +283,7 @@ void packChunk(std::vector<unsigned char> input, unsigned int output[]) {
 	unsigned int temporary;
 
 	for (int i = 0; i < input.size() / BYTE_COUNT; i++) {
-		temporay = input[i * BYTE_COUNT + 0];
+		temporary = input[i * BYTE_COUNT + 0];
 		temporary *= MAXIMUM_WORD; // Same as left shift by 8
 		temporary += input[i * BYTE_COUNT + 1]; 		
 		temporary *= MAXIMUM_WORD; // Same as left shift by 8
@@ -264,3 +293,9 @@ void packChunk(std::vector<unsigned char> input, unsigned int output[]) {
 		output[i] = temporary;
 	}
 }
+
+inline uint32_t right_rotate(uint32_t input, uint32_t n) {
+	return (input << n) | (input >> (32 - n));
+}
+
+
