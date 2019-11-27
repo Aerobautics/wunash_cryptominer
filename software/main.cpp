@@ -14,12 +14,12 @@
 inline uint32_t right_rotate(uint32_t input, uint32_t n);
 
 void test_function_001();
-void test_sha(std::vector<unsigned char> input, unsigned char output[HASH_SIZE]);
-std::vector<unsigned char> decimateInteger(int input, int array_size);
-void packChunk(std::vector<unsigned char> input, unsigned int output[]);
+void test_function_002();
+void sha_256(std::vector<unsigned char> input, unsigned char output[HASH_SIZE]);
+std::vector<unsigned char> decimateInteger(unsigned int input, int array_size);
+void packChunk(std::vector<unsigned char> input, uint32_t output[]);
 
 int main(int argc, char *argv[]) {
-	test_function_001();
 	test_function_001();
 
 	system("pause");
@@ -42,14 +42,34 @@ void test_function_001() {
 	//test_string.erase(std::find(test_string.begin(), test_string.end(), '\0'), test_string.end());
 	input.insert(input.end(), test_string.begin(), test_string.end());
 	std::cout << test_string << std::endl;
-	test_sha(input, test_hash);
+	sha_256(input, test_hash);
 	for (int i = 0; i < HASH_SIZE; i++) {
 		std::cout << std::hex << static_cast<int>(test_hash[i]);
 	}
 	std::cout << std::endl;
 }
 
-void test_sha(std::vector<unsigned char> input, unsigned char output[HASH_SIZE]) {
+void test_function_002() {
+	unsigned char test_hash[HASH_SIZE];
+	unsigned char test_block_64[64] = {
+		0,  1,  2,  3,  4,  5,  6,  7,
+		8,  9, 10, 11, 12, 13, 14, 15,
+		16, 17, 18, 19, 20, 21, 22, 23,
+		24, 25, 26, 27, 28, 29, 30, 31,
+		32, 33, 34, 35, 36, 37, 38, 39,
+		40, 41, 42, 43, 44, 45, 46, 47,
+		48, 49, 50, 51, 52, 53, 54, 55,
+		56, 57, 58, 59, 60, 61, 62, 63
+	};
+	std::vector<unsigned char> input(test_block_64, test_block_64 + sizeof(test_block_64) / sizeof(test_block_64[0]));
+	sha_256(input, test_hash);
+	for (int i = 0; i < HASH_SIZE; i++) {
+		std::cout << std::hex << static_cast<int>(test_hash[i]);
+	}
+	std::cout << std::endl;
+}
+
+void sha_256(std::vector<unsigned char> input, unsigned char output[HASH_SIZE]) {
 	const int HASH_COUNT = 8;
 	const int ROUND_COUNT = 64;
 	const int BIT_COUNT = 512;
@@ -182,7 +202,7 @@ void test_sha(std::vector<unsigned char> input, unsigned char output[HASH_SIZE])
 			input.push_back(0);
 		}
 	}
-	tail = decimateInteger(messageLength, END_SIZE);
+	tail = decimateInteger(messageLength, END_SIZE / WORD_SIZE);
 	input.insert(input.end(), tail.begin(), tail.end());
 	// Break the message into 512 bit chunks
 	iterations = input.size() / (BIT_COUNT / WORD_SIZE);
@@ -199,7 +219,7 @@ void test_sha(std::vector<unsigned char> input, unsigned char output[HASH_SIZE])
 			uint32_t seed_0 = right_rotate(messageScheduleArray[j - 15], 7) ^
 				right_rotate(messageScheduleArray[j - 15], 18) ^
 				(messageScheduleArray[j - 15] >> 3);
-			uint32_t seed_1 = right_rotate(workingVariables[j - 2], 17) ^
+			uint32_t seed_1 = right_rotate(messageScheduleArray[j - 2], 17) ^
 				right_rotate(messageScheduleArray[j - 2], 19) ^
 				(messageScheduleArray[j - 2] >> 10);
 			messageScheduleArray[j] = messageScheduleArray[j - 16] + seed_0 +
@@ -262,9 +282,9 @@ void test_sha(std::vector<unsigned char> input, unsigned char output[HASH_SIZE])
 }
 
 // Put integer into a character array (vector)
-std::vector<unsigned char> decimateInteger(int input, int array_size) {
+std::vector<unsigned char> decimateInteger(unsigned int input, int array_size) {
 	std::vector<unsigned char> output;
-	const int MAXIMUM_WORD = 0x100;
+	const unsigned int MAXIMUM_WORD = 0x100;
 
 	for (int i = 0; i < array_size; i++) {
 		output.push_back(input % MAXIMUM_WORD);
@@ -275,12 +295,12 @@ std::vector<unsigned char> decimateInteger(int input, int array_size) {
 	return output;
 }
 
-void packChunk(std::vector<unsigned char> input, unsigned int output[]) {
+void packChunk(std::vector<unsigned char> input, uint32_t output[]) {
 	const int BIT_COUNT = 512;
 	const int BYTE_COUNT = 4;
 	const int WORD_SIZE = 8;
-	const unsigned int MAXIMUM_WORD = 0x100;
-	unsigned int temporary;
+	const uint32_t MAXIMUM_WORD = 0x100;
+	uint32_t temporary;
 
 	for (int i = 0; i < input.size() / BYTE_COUNT; i++) {
 		temporary = input[i * BYTE_COUNT + 0];
@@ -295,7 +315,7 @@ void packChunk(std::vector<unsigned char> input, unsigned int output[]) {
 }
 
 inline uint32_t right_rotate(uint32_t input, uint32_t n) {
-	return (input << n) | (input >> (32 - n));
+	return (input >> n) | (input << (32 - n));
 }
 
 
