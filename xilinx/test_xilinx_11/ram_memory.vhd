@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 12/06/2019 03:05:50 AM
 -- Design Name: 
--- Module Name: single_memory - behavioral_1
+-- Module Name: ram_memory - behavioral_1
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -21,9 +21,9 @@
 -- Single-Port Block RAM Read-First Mode
 -- Single-Port Block RAM Write-First Mode
 
-LIBRARY IEEE;
-USE IEEE.std_logic_1164.ALL;
-USE IEEE.numeric_std.ALL;
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -34,19 +34,19 @@ USE IEEE.numeric_std.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-ENTITY single_memory IS
+ENTITY ram_memory IS
     PORT(
         clock : IN std_logic;
         write_enable : IN std_logic;
         enable : IN std_logic;
-        address : IN std_logic_vector(9 DOWNTO 0);
-        data_in : IN std_logic_vector(15 DOWNTO 0);
-        data_out : OUT std_logic_vector(15 DOWNTO 0)
+        address : IN std_logic_vector(7 DOWNTO 0);
+        data_in : IN std_logic_vector(31 DOWNTO 0);
+        data_out : OUT std_logic_vector(31 DOWNTO 0)
     );
-END single_memory;
+END ram_memory;
 
-ARCHITECTURE behavioral_1 OF single_memory IS
-    TYPE ram_type IS ARRAY (1023 DOWNTO 0) OF std_logic_vector(15 DOWNTO 0);
+ARCHITECTURE behavioral_1 OF ram_memory IS
+    TYPE ram_type IS ARRAY (255 DOWNTO 0) OF std_logic_vector(31 DOWNTO 0);
     SIGNAL ram : ram_type;
 BEGIN
     PROCESS(clock)

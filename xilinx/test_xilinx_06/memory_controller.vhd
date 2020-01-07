@@ -78,5 +78,10 @@ BEGIN
         END IF;    
     END PROCESS;
     main_clock: single_memory
-        PORT MAP(memory_clock, write_enabled, enabled, memory_address, data, stored_value);
+        PORT MAP(clock => memory_clock,
+            write_enable => write_enabled,
+            enable => enabled,
+            address => memory_address,
+            data_in => data,
+            data_out => stored_value);
 END behavioral_5;
