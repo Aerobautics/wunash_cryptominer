@@ -36,24 +36,24 @@ ENTITY memory_control IS
     PORT    (clock : IN std_logic;
              unlock : IN std_logic;
              address : IN std_logic_vector (9 DOWNTO 0);
-             data : IN std_logic_vector(15 DOWNTO 0);
-             data_buffer : OUT std_logic_vector(15 DOWNTO 0);
+             data : IN std_logic_vector(31 DOWNTO 0);
+             data_buffer : OUT std_logic_vector(31 DOWNTO 0);
              ready : OUT std_logic);
 END memory_control;
 
 ARCHITECTURE behavioral_7 OF memory_control IS
-    COMPONENT single_memory
+    COMPONENT ram_memory
         PORT    (clock : IN std_logic;
                  write_enable : IN std_logic;
                  enable : IN std_logic;
-                 address : IN std_logic_vector(9 DOWNTO 0);
-                 data_in : IN std_logic_vector(15 DOWNTO 0);
-                 data_out : OUT std_logic_vector(15 DOWNTO 0));
+                 address : IN std_logic_vector(7 DOWNTO 0);
+                 data_in : IN std_logic_vector(31 DOWNTO 0);
+                 data_out : OUT std_logic_vector(31 DOWNTO 0));
     END COMPONENT;
     SHARED VARIABLE memory_period : unsigned(3 DOWNTO 0) := to_unsigned(0, 4);
     SIGNAL enable : std_logic;
     SIGNAL write : std_logic;
-    SIGNAL memory_buffer : std_logic_vector(15 DOWNTO 0);
+    SIGNAL memory_buffer : std_logic_vector(31 DOWNTO 0);
 BEGIN
     PROCESS(clock)
     BEGIN
@@ -97,7 +97,6 @@ BEGIN
             END IF; -- Lock        
         END IF; -- Rising edge
     END PROCESS;
-    swpf_memory: single_memory
+    swpf_memory: ram_memory
         PORT MAP(clock, write, enable, address, data, memory_buffer);
-
 END behavioral_7;

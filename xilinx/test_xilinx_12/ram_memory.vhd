@@ -21,9 +21,9 @@
 -- Single-Port Block RAM Read-First Mode
 -- Single-Port Block RAM Write-First Mode
 
-LIBRARY ieee;
-USE ieee.std_logic_1164.ALL;
-USE ieee.numeric_std.ALL;
+LIBRARY IEEE;
+USE IEEE.std_logic_1164.ALL;
+USE IEEE.numeric_std.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -39,14 +39,14 @@ ENTITY ram_memory IS
         clock : IN std_logic;
         write_enable : IN std_logic;
         enable : IN std_logic;
-        address : IN std_logic_vector(7 DOWNTO 0);
-        data_in : IN std_logic_vector(31 DOWNTO 0);
-        data_out : OUT std_logic_vector(31 DOWNTO 0)
+        address : IN std_logic_vector(9 DOWNTO 0);
+        data_in : IN std_logic_vector(15 DOWNTO 0);
+        data_out : OUT std_logic_vector(15 DOWNTO 0)
     );
 END ram_memory;
 
 ARCHITECTURE behavioral_1 OF ram_memory IS
-    TYPE ram_type IS ARRAY (255 DOWNTO 0) OF std_logic_vector(31 DOWNTO 0);
+    TYPE ram_type IS ARRAY (1023 DOWNTO 0) OF std_logic_vector(15 DOWNTO 0);
     SIGNAL ram : ram_type;
 BEGIN
     PROCESS(clock)

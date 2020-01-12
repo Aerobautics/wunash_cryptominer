@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 01/03/2020 01:44:06 AM
 -- Design Name: 
--- Module Name: memory_read - behavioral_9
+-- Module Name: rom_controller - behavioral_9
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -32,15 +32,15 @@ USE ieee.numeric_std.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-ENTITY memory_read IS
+ENTITY rom_controller IS
     PORT    (clock : IN std_logic;
              address : IN std_logic_vector(7 DOWNTO 0);
-             unlock : IN std_logic;
+             reset : IN std_logic;
              data : OUT std_logic_vector(31 DOWNTO 0);
              ready : OUT std_logic);
-END memory_read;
+END rom_controller;
 
-ARCHITECTURE behavioral_9 OF memory_read IS
+ARCHITECTURE behavioral_9 OF rom_controller IS
     COMPONENT rom_memory
         PORT    (clock : IN std_logic;
                  enable : IN std_logic;
@@ -49,10 +49,12 @@ ARCHITECTURE behavioral_9 OF memory_read IS
                  ready : OUT std_logic);                 
     END COMPONENT;
     SHARED VARIABLE read_period : unsigned(1 DOWNTO 0) := to_unsigned(0, 2);
+    SHARED VARIABLE read_reset : std_logic := '0';
     SIGNAL read_buffer : std_logic_vector(31 DOWNTO 0);
     SIGNAL enable : std_logic;
 BEGIN
     PROCESS(clock)
+        VARIABLE unlock : std_logic := '1';
     BEGIN
         IF rising_edge(clock) THEN
             IF (unlock = '1') THEN -- Unlocked
