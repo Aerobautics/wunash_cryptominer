@@ -69,8 +69,9 @@ ARCHITECTURE behavioral_8 OF sha_algorithm IS
     SIGNAL ram_complete : std_logic := '0';
 BEGIN
     PROCESS(clock)
-        CONSTANT working_variables : std_logic_vector(7 DOWNTO 0) := "00000000"
-        CONSTANT hash_values : std_logic_vector(7 DOWNTO 0) := "00000000"
+        CONSTANT working_variables : std_logic_vector(7 DOWNTO 0) := "00000000";
+        CONSTANT hash_values : std_logic_vector(7 DOWNTO 0) := "00000000";
+        --above was missing semicolons
         --VARIABLE internal_state_complete : std_logic := '0';
         --VARIABLE external_state_complete : std_logic := '0';
         VARIABLE s0 : std_logic_vector(31 DOWNTO 0);
@@ -88,7 +89,8 @@ BEGIN
                 -- Initialize working variables to hash values
                 IF (internal_state = "00111") THEN
                     --internal_state_complete = '1';
-                    sha_state <= std_logic_vector(unsigned(sha_state) + 1);
+                    sha_state := sha_state + 1;
+                    --changed assignment <=
                 ELSE
                     rom_address <= std_logic_vector(unsigned(hash_values) + resize(unsigned(internal_state), hash_values'LENGTH));
                     ram_address <= std_logic_vector(unsigned(working_variables) + resize(unsigned(internal_state), working_variables'LENGTH));
@@ -97,7 +99,8 @@ BEGIN
                         ram_buffer <= rom_buffer;
                     END IF;
                     IF (ram_ready = '1') THEN
-                        ram_lock <= '0';
+                        --ram_lock <= '0';
+                        --ram_lock is undeclared and seems unused, commented out above
                         internal_state := internal_state + 1;
                     END IF;                    
                 END IF;            
@@ -111,7 +114,7 @@ BEGIN
                     ram_address <= std_logic_vector(unsigned(working_variables) + 5);
                     work_2_unsigned := unsigned(ram_buffer);
                 ELSIF (internal_state = "000011") THEN
-                    ram_address <= std_logic_vector(unsigned(working_variabels) + 6);
+                    ram_address <= std_logic_vector(unsigned(working_variables) + 6);
                     work_3_unsigned := unsigned(ram_buffer);
                 ELSE
                 
@@ -132,6 +135,6 @@ BEGIN
     read_memory: rom_controller
         PORT MAP(clock, rom_address, rom_reset, rom_buffer, rom_ready);
     write_memory: ram_controller
-        PORT MAP(clock, ram_address, ram_read, ram_reset, ram_buffer, ram_ready);
+        PORT MAP(clock, ram_read, ram_reset, ram_address, ram_buffer, ram_ready); --order of paramters NEEDS to match component port
 
 END behavioral_8;
