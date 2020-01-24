@@ -71,7 +71,7 @@ BEGIN
     PROCESS(clock)
         CONSTANT working_variables : std_logic_vector(7 DOWNTO 0) := "00000000";
         CONSTANT hash_values : std_logic_vector(7 DOWNTO 0) := "00000000";
-        --above was missing semicolons
+       
         --VARIABLE internal_state_complete : std_logic := '0';
         --VARIABLE external_state_complete : std_logic := '0';
         VARIABLE s0 : std_logic_vector(31 DOWNTO 0);
@@ -90,7 +90,7 @@ BEGIN
                 IF (internal_state = "00111") THEN
                     --internal_state_complete = '1';
                     sha_state := sha_state + 1;
-                    --changed assignment <=
+        
                 ELSE
                     rom_address <= std_logic_vector(unsigned(hash_values) + resize(unsigned(internal_state), hash_values'LENGTH));
                     ram_address <= std_logic_vector(unsigned(working_variables) + resize(unsigned(internal_state), working_variables'LENGTH));
